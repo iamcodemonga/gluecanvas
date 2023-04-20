@@ -313,10 +313,10 @@ const ExploreGrid: FC<ExploreFeeds> = ({ active, all, art, photos, books }) => {
                     </div>)}
                 </div>
                 <p className="mt-5 text-center">
-                    {activetab == null && all.length > 8 && <button className="btn btn-primary px-4" type="button" onClick={() => handleMore(null)}>Load more</button>}
-                    {activetab == "art" && art.length > 8 && <button className="btn btn-primary px-4" type="button" onClick={() => handleMore("art")}>Load more</button>}
-                    {activetab == "photography" && photos.length > 8 && <button className="btn btn-primary px-4" type="button" onClick={() => handleMore("photography")}>Load more</button>}
-                    {activetab == "books" && books.length > 8 && <button className="btn btn-primary px-4" type="button" onClick={() => handleMore("books")}>Load more</button>}
+                    {activetab == null && all.length >= limit.all && <button className="btn btn-primary px-4" type="button" onClick={() => handleMore(null)}>Load more</button>}
+                    {activetab == "art" && art.length >= limit.art && <button className="btn btn-primary px-4" type="button" onClick={() => handleMore("art")}>Load more</button>}
+                    {activetab == "photography" && photos.length >= limit.photography && <button className="btn btn-primary px-4" type="button" onClick={() => handleMore("photography")}>Load more</button>}
+                    {activetab == "books" && books.length >= limit.books && <button className="btn btn-primary px-4" type="button" onClick={() => handleMore("books")}>Load more</button>}
                 </p>
             </div>
         </section>
