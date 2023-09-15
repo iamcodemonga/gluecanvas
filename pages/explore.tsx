@@ -4,31 +4,25 @@ import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
 import axios from 'axios';
 import ExploreGrid from '@/components/datalist/ExploreGrid'
+import { AllNFTs, ArtNFTs, BookNFTs, GetAllCreators, PhotoNFTs } from '@/services'
 
 interface User {
-    id: number;
-    address: string;
+    id: string;
+    cover?: string;
     dp: string;
-    cover: string;
-    username: string;
-    email: string;
-    gender: string;
-    description: string;
-    balance: number,
-    verified: boolean
+    bio?: string;
+    name: string;
+    verified: boolean;
   }
   
   interface Posts {
-    id: number;
+    id: string;
     image: string;
     title: string;
-    description: string;
     category: string;
-    currency: string;
+    slug: string;
     price: number;
     likes: number;
-    liked: boolean;
-    created: string;
     creator: User
   }
   
@@ -45,19 +39,20 @@ export const getServerSideProps: GetServerSideProps<PageProps> = async(context: 
     const api = process.env.API_ROOT;
     const initialTab = (query.category === undefined ? null : query.category);
     console.log(initialTab)
-    const allnfts = await axios(`${api}/content`);
-    const art = await axios(`${api}/content?category=art`);
-    const photos = await axios(`${api}/content?category=photography`);
-    const books = await axios(`${api}/content?category=books`);
+    const allnfts = await AllNFTs();
+    const art = await ArtNFTs();
+    const photos = await PhotoNFTs();
+    const books = await BookNFTs();
+    const creators = await GetAllCreators();
 
     if (initialTab == null || initialTab == "art" || initialTab == "photography" || initialTab == "books") {
         return {
             props: {
                 active: initialTab,
-                allnfts: allnfts.data, 
-                art: art.data,
-                photos: photos.data,
-                books: books.data,
+                allnfts: allnfts, 
+                art: art,
+                photos: photos,
+                books: books,
             }
         }
     } else {
