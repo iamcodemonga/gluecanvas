@@ -3,20 +3,16 @@ import { GetServerSideProps, GetServerSidePropsContext } from 'next'
 import Navbar from '@/components/Navbar'
 import CreatorsGrid from '@/components/datalist/Creators'
 import Footer from '@/components/Footer'
-import axios from 'axios';
+import { GetAllCreators } from '@/services'
 
 interface User {
-    id: number;
-    address: string;
+    id: string;
+    cover?: string;
     dp: string;
-    cover: string;
-    username: string;
-    email: string;
-    gender: string;
-    description: string;
-    balance: number,
-    verified: boolean
-}
+    bio?: string;
+    name: string;
+    verified: boolean;
+  }
 
 interface PageProps {
     creators: Array<User>
@@ -24,11 +20,10 @@ interface PageProps {
 
 export const getServerSideProps: GetServerSideProps<PageProps> = async(context: GetServerSidePropsContext) => {
 
-    const api = process.env.API_ROOT;
-    const creators = await axios(`${api}/creators`);
+    const creators = await GetAllCreators();
     return {
         props: {
-            creators: creators.data
+            creators: creators
         }
     }
   

@@ -30,9 +30,9 @@ const Navbar: FC = () => {
                             <li className="nav-item"><Link className={router.pathname == "/about" ? "nav-link active" : "nav-link"} href="/about">About</Link></li>
                         </ul>
                         <ul className="navbar-nav ms-auto">
-                            <li className="nav-item d-none"><Link className={router.pathname == "/register" ? "nav-link active" : "nav-link"} href="/register">Register</Link></li>
-                            <li className="nav-item d-none me-2"><Link className={router.pathname == "/login" ? "nav-link active" : "nav-link"} href="/login">Login</Link></li>
-                            <li className="nav-item dropstart d-non"><Link className="nav-link" aria-expanded="false" data-bs-toggle="dropdown" href="#">
+                            <li className="nav-item d-non"><Link className={router.pathname == "/register" ? "nav-link active" : "nav-link"} href="/register">Register</Link></li>
+                            <li className="nav-item d-non me-2"><Link className={router.pathname == "/login" ? "nav-link active" : "nav-link"} href="/login">Login</Link></li>
+                            <li className="nav-item dropstart d-none"><Link className="nav-link" aria-expanded="false" data-bs-toggle="dropdown" href="#">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" viewBox="0 0 16 16" className="bi bi-person mb-1 me-1">
                                     <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4zm-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10c-2.29 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664h10z" />
                                 </svg>Pallette_king&nbsp;</Link>
@@ -59,6 +59,18 @@ const Navbar: FC = () => {
                 </div>
             </nav>
             <hr className="my-0" />
+            {/* <div className="modal fade" role="dialog" tabIndex={-1} id="wallets">
+                <div className="modal-dialog modal-dialog-centered" role="document">
+                    <div className="modal-content">
+                    <div className="modal-header border-0">
+                        <h6 className="modal-title mt-1"><span style={{fontWeight: 'normal !important'}}>Connect wallet</span></h6><button className="btn-close btn-close-white" type="button" aria-label="Close" data-bs-dismiss="modal" style={{fontSize: 14}} />
+                    </div>
+                    <div className="modal-body pt-0 pb-5">
+                        <p><span style={{color: 'rgb(189, 189, 189)'}}>Choose one of available wallet providers or create a new wallet.</span></p><button className="btn btn-dark w-100 mt-2" type="button"><img className="me-2" src="https://cdn.iconscout.com/icon/free/png-512/metamask-2728406-2261817.png?f=avif&w=512" width="20px" />Metamask</button><button className="btn btn-dark w-100 mt-3" type="button"><img className="me-2" width="20px" src="https://stakingcrypto.info/static/assets/coins/trust-wallet-token-logo.png?v=91" />Trust wallet</button><button className="btn btn-dark w-100 mt-3" type="button"><img className="me-2" width="20px" src="https://cdn.iconscout.com/icon/free/png-512/coinbase-7662253-6297189.png?f=avif&w=512" />Coinbase</button>
+                    </div>
+                    </div>
+                </div>
+            </div> */}
         </div>
     )
 }

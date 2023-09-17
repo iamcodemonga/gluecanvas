@@ -3,17 +3,13 @@ import Link from 'next/link'
 import Image from 'next/image'
 
 interface User {
-    id: number;
-    address: string;
+    id: string;
+    cover?: string;
     dp: string;
-    cover: string;
-    username: string;
-    email: string;
-    gender: string;
-    description: string;
-    balance: number,
-    verified: boolean
-}
+    bio?: string;
+    name: string;
+    verified: boolean;
+  }
 
 interface Creators {
     creators: Array<User>
@@ -40,7 +36,7 @@ const Creators: FC<Creators> = ({ creators }) => {
                     <input className="form-control" type="text" placeholder="search creators" />
                 </form>
                 <div className="row gx-4 gy-5">
-                    {creators.length > 1 && creators.slice(0, limit).map((creator, index) => <div className="col-sm-12 col-md-6 col-lg-4 col-xl-3 col-xxl-3" key={index}>
+                    {creators.length > 1 && creators.slice(0, limit).map((creator: any) => <div className="col-sm-12 col-md-6 col-lg-4 col-xl-3 col-xxl-3" key={creator.id}>
                         <div className="card bg-dark border-dark user-card us-grid" style={{borderRadius: 20}}>
                             <Image className="card-img-top w-100 d-block cover-img" src={creator.cover} alt='creators_cover' width={298} height={100} />
                             <div className="card-body">
@@ -52,10 +48,10 @@ const Creators: FC<Creators> = ({ creators }) => {
                                         </svg>}
                                     </div>
                                     <h5 className="mt-3 mb-3">
-                                        <Link className="stretched-link text-decoration-none" href={`/${creator.username}`}>@{creator.username}</Link>
+                                        <Link className="stretched-link text-decoration-none" href={`/${creator.name}`}>@{creator.name}</Link>
                                     </h5>
-                                    <p>{creator.description}</p>
-                                    <Link className="btn btn-primary mb-2" role="button" href={`/${creator.username}`}>Visit Profile</Link>
+                                    <p>{creator.bio}</p>
+                                    <Link className="btn btn-primary mb-2" role="button" href={`/${creator.name}`}>Visit Profile</Link>
                                 </div>
                             </div>
                         </div>

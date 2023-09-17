@@ -363,7 +363,7 @@ const Timeline: FC<HomeFeeds> = ({ active, all, art, photos, books, creators }) 
                                     </svg>}
                                 </div>
                                 <h5 className="mt-3 mb-3">
-                                    <Link className="stretched-link text-decoration-none" href={`/${creator.id}`}>@{creator.name}</Link>
+                                    <Link className="stretched-link text-decoration-none" href={`/${creator.name}`}>@{creator.name}</Link>
                                 </h5>
                                 <p>{creator.bio}</p>
                                 <a className="btn btn-primary mb-2" role="button" href="/profile">Visit Profile</a>
