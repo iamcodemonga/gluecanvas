@@ -1,6 +1,6 @@
 import Footer from '@/components/Footer';
 import Navbar from '@/components/Navbar';
-import { CreatedNFTs, GetCreator } from '@/services';
+import { CreatedNFTs, GetCreator, ListedNFTs } from '@/services';
 import { GetServerSideProps, GetServerSidePropsContext } from 'next'
 import Image from 'next/image';
 import Link from 'next/link';
@@ -37,6 +37,7 @@ export const getServerSideProps: GetServerSideProps<PageProps> = async(context: 
     const { params } : any = context;
     const user = await GetCreator(params.nickname);
     const minted = await CreatedNFTs(params.nickname)
+    const listed = await ListedNFTs(params.nickname)
 
     if (!user) {
         return {
@@ -51,7 +52,7 @@ export const getServerSideProps: GetServerSideProps<PageProps> = async(context: 
         props: {
             user: user,
             minted: minted,
-            listed: minted
+            listed: listed
         }
     }
 }

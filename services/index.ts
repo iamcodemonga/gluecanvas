@@ -148,6 +148,7 @@ export const ItemDetails = async(address: string) => {
     return result.content;
 }
 
+//other NFTs
 export const OtherNFTs = async(category: string, id: string, max: number) => {
     const QUERY = gql`
         {
@@ -174,29 +175,6 @@ export const OtherNFTs = async(category: string, id: string, max: number) => {
     return result.contents;
 }
 
-export const CreatedNFTs = async(username: string) => {
-    const QUERY = gql`
-        {
-            contents(first: 35, where: {creator: {name: "${username}"}}) {
-                id
-                image
-                likes
-                price
-                slug
-                title
-                category
-              }
-        }`;
-    const result:any = await hygraph.request(QUERY);
-    return result.contents;
-}
-
-
-
-
-
-//CreatedNFTs
-//ListedNFTs
 //GetCreator
 export const GetCreator = async(username: string) => {
     const QUERY = gql`
@@ -216,3 +194,42 @@ export const GetCreator = async(username: string) => {
     return result.creators[0];
 }
 
+//CreatedNFTs
+export const CreatedNFTs = async(username: string) => {
+    const QUERY = gql`
+        {
+            contents(first: 35, where: {creator: {name: "${username}"}}) {
+                id
+                image
+                likes
+                price
+                slug
+                title
+                category
+              }
+        }`;
+    const result:any = await hygraph.request(QUERY);
+    return result.contents;
+}
+
+//ListedNFTs
+export const ListedNFTs = async(username: string) => {
+    const QUERY = gql`
+        {
+            contents(
+                first: 35
+                where: {creator: {name: "${username}"}}
+                orderBy: publishedAt_DESC
+              ) {
+                id
+                image
+                likes
+                price
+                slug
+                title
+                category
+            }
+        }`;
+    const result:any = await hygraph.request(QUERY);
+    return result.contents;
+}
