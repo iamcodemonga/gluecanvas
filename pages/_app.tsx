@@ -2,6 +2,7 @@ import Head from 'next/head'
 import Script from 'next/script'
 import '@/styles/globals.css'
 import type { AppProps } from 'next/app'
+import NextNProgress from 'nextjs-progressbar'
 
 export default function App({ Component, pageProps }: AppProps) {
   return <>
@@ -13,6 +14,7 @@ export default function App({ Component, pageProps }: AppProps) {
                   <link rel="icon" href="/icon.svg" />
                 </Head>
                 <Script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" />
+                <NextNProgress color="#6164ff" startPosition={0.7} stopDelayMs={200} height={5} showOnShallow={true} />
                 <Component {...pageProps} />
             </>
 }

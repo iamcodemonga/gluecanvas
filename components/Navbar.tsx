@@ -10,9 +10,9 @@ const Navbar: FC = () => {
         <div className="sticky-top">
             <nav className="navbar navbar-dark navbar-expand-xl py-3">
                 <div className="container">
-                    <a className="navbar-brand" href="/">
+                    <Link className="navbar-brand" href="/">
                         <span>Glue</span><span className="text-accent">Canvas</span>
-                    </a>
+                    </Link>
                     <div>
                         <button data-bs-toggle="collapse" className="navbar-toggler border-0" data-bs-target="#navcol-1">
                             <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" className="text-light" style={{fontSize: 35}}>
