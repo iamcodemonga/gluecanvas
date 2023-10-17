@@ -17,8 +17,8 @@ const Banner: FC = () => {
                                         <h4 className="mt-0">Exclusive digital asset</h4>
                                         <p style={{maxWidth: 700}}>Buy and sell decentralized assets including arts, photography etc from the biggest NFT marketplace in the world. Trade your NFTs with the token of your choice.</p>
                                         <p className="mt-4">
-                                            <Link className="btn btn-primary me-3 px-3" href='/item'>More details</Link>
-                                            <Link className="btn btn-dark px-3" href='/item'>Place a bid</Link>
+                                            <button className="btn btn-primary me-3 px-3" type='button' role='button'>More details</button>
+                                            <button className="btn btn-dark px-3" type='button' role='button'>Place a bid</button>
                                         </p>
                                     </div>
                                 </div>
