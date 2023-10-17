@@ -1,75 +1,66 @@
-import { FC } from 'react'
 import { GetServerSideProps, GetServerSidePropsContext } from 'next'
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
-import axios from 'axios';
 import ExploreGrid from '@/components/datalist/ExploreGrid'
-import { AllNFTs, ArtNFTs, BookNFTs, GetAllCreators, PhotoNFTs } from '@/services'
-
-interface User {
-    id: string;
-    cover?: string;
-    dp: string;
-    bio?: string;
-    name: string;
-    verified: boolean;
-  }
+import { Post } from '@/interfaces'
+import { AllNFTs, CategorisedNFTs } from '@/services'
   
-  interface Posts {
-    id: string;
-    image: string;
-    title: string;
-    category: string;
-    slug: string;
-    price: number;
-    likes: number;
-    creator: User
-  }
-  
-  interface PageProps {
-    active: string | string[] | null;
-    allnfts: Array<Posts>;
-    art: Array<Posts>;
-    photos: Array<Posts>;
-    books: Array<Posts>;
-  }
-
-export const getServerSideProps: GetServerSideProps<PageProps> = async(context: GetServerSidePropsContext) => {
-    const { query } = context;
-    const api = process.env.API_ROOT;
-    const initialTab = (query.category === undefined ? null : query.category);
-    console.log(initialTab)
-    const allnfts = await AllNFTs();
-    const art = await ArtNFTs();
-    const photos = await PhotoNFTs();
-    const books = await BookNFTs();
-    const creators = await GetAllCreators();
-
-    if (initialTab == null || initialTab == "art" || initialTab == "photography" || initialTab == "books") {
-        return {
-            props: {
-                active: initialTab,
-                allnfts: allnfts, 
-                art: art,
-                photos: photos,
-                books: books,
-            }
-        }
-    } else {
-        return {
-            redirect: {
-                destination: '/',
-                permanent: false
-            }
-        }
-    }
+interface PageProps {
+    active: string | null;
+    nfts: Array<Post>;
 }
 
-const Explore: FC<PageProps> = ({ active, allnfts, art, photos, books }) => {
+export const getServerSideProps: GetServerSideProps<PageProps> = async(context: GetServerSidePropsContext) => {
+const { query } = context;
+  const initialTab = (query.category === undefined ? null : query.category);
+
+  if (initialTab == null) {
+      const allnfts = await AllNFTs(8, 0);
+      return {
+        props: {
+          active: initialTab,
+          nfts: allnfts,
+        }
+      }
+  } else if (initialTab == "art") {
+      const art = await CategorisedNFTs("art", 0, 8);
+      return {
+        props: {
+          active: initialTab,
+          nfts: art,
+        }
+      }
+  } else if (initialTab == "photography") {
+      const photos = await CategorisedNFTs("photography", 0, 8);
+      return {
+        props: {
+          active: initialTab,
+          nfts: photos,
+        }
+      }
+  } else if (initialTab == "books") {
+      const books = await CategorisedNFTs("book", 0, 8);
+      return {
+        props: {
+          active: initialTab,
+          nfts: books,
+        }
+      }
+  } else  {
+      return {
+        redirect: {
+          destination: '/',
+          permanent: false
+        }
+      }
+  }
+}
+
+const Explore  = ({ active, nfts }: PageProps) => {
     return (
         <>
             <Navbar />
-            <ExploreGrid active={active} all={allnfts} art={art} photos={photos} books={books} />
+            <ExploreGrid active={active} nfts={nfts} />
             <Footer />
         </>
     )

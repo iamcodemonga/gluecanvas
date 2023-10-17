@@ -1,3 +1,4 @@
+import { Post, User } from "@/interfaces";
 import { GraphQLClient, gql } from "graphql-request";
 
 const key = process.env.NEXT_PUBLIC_API_KEY;
@@ -8,38 +9,38 @@ export const hygraph = new GraphQLClient(`${key}`,
       headers: {
         Authorization: `${bearer}`
       }
-    }
+}
 );
 
 //Get All NFTs
-export const AllNFTs = async() => {
+export const AllNFTs = async(limit: number, skip: number) => {
     const QUERY = gql`
-        {
-            contents(first: 35) {
-                id
-                image
-                likes
-                price
-                slug
-                title
-                category
-                creator {
-                  dp
-                  id
-                  name
-                  verified
-                }
-            }
-        }`;
-    const result:any = await hygraph.request(QUERY);
+    {
+        contents(first: ${limit}, skip: ${skip}) {
+          id
+          image
+          likes
+          price
+          slug
+          title
+          category
+          creator {
+            dp
+            id
+            name
+            verified
+          }
+        }
+      }`;
+    const result: { contents: Array<Post> } = await hygraph.request(QUERY);
     return result.contents;
 }
 
 //Art NFTs
-export const ArtNFTs = async() => {
+export const CategorisedNFTs = async(category: string, skip: number, limit: number) => {
     const QUERY = gql`
         {
-            contents(where: {category: "art"}) {
+            contents(where: {category: "${category}"}, skip: ${skip}, first: ${limit}) {
                 category
                 id
                 image
@@ -52,58 +53,10 @@ export const ArtNFTs = async() => {
                     id
                     name
                     verified
-                  }
+                }
             }
         }`;
-    const result:any = await hygraph.request(QUERY);
-    return result.contents;
-}
-
-//PhotoNFTs
-export const PhotoNFTs = async() => {
-    const QUERY = gql`
-        {
-            contents(where: {category: "photography"}) {
-                category
-                id
-                image
-                likes
-                price
-                slug
-                title
-                creator {
-                    dp
-                    id
-                    name
-                    verified
-                  }
-            }
-        }`;
-    const result:any = await hygraph.request(QUERY);
-    return result.contents;
-}
-
-//BookNFTs
-export const BookNFTs = async() => {
-    const QUERY = gql`
-        {
-            contents(where: {category: "book"}) {
-                category
-                id
-                image
-                likes
-                price
-                slug
-                title
-                creator {
-                    dp
-                    id
-                    name
-                    verified
-                  }
-            }
-        }`;
-    const result:any = await hygraph.request(QUERY);
+    const result: { contents: Array<Post> } = await hygraph.request(QUERY);
     return result.contents;
 }
   
@@ -120,7 +73,7 @@ export const GetAllCreators = async() => {
                 verified
             }
         }`;
-    const result:any = await hygraph.request(QUERY);
+    const result: { creators: Array<User> } = await hygraph.request(QUERY);
     return result.creators;
 }
 
@@ -144,7 +97,7 @@ export const ItemDetails = async(address: string) => {
                 }
             }
         }`;
-    const result:any = await hygraph.request(QUERY);
+    const result: { content: Post } = await hygraph.request(QUERY);
     return result.content;
 }
 
@@ -171,7 +124,7 @@ export const OtherNFTs = async(category: string, id: string, max: number) => {
                 }
               }
         }`;
-    const result:any = await hygraph.request(QUERY);
+    const result: { contents: Array<Post> } = await hygraph.request(QUERY);
     return result.contents;
 }
 
@@ -190,15 +143,34 @@ export const GetCreator = async(username: string) => {
                 balance
             }
         }`;
-    const result:any = await hygraph.request(QUERY);
+    const result: { creators: Array<User> } = await hygraph.request(QUERY);
     return result.creators[0];
 }
 
+//SearchCreator
+export const SearchCreators = async(username: string) => {
+    const QUERY = gql`
+    {
+        creators(where: {name_contains: "${username}"}) {
+          id
+          name
+          email
+          dp
+          cover
+          bio
+          verified
+          balance
+        }
+      }`;
+    const result: { creators: Array<User> } = await hygraph.request(QUERY);
+    return result.creators;
+}
+
 //CreatedNFTs
-export const CreatedNFTs = async(username: string) => {
+export const CreatedNFTs = async(limit: number, skip: number, username: string) => {
     const QUERY = gql`
         {
-            contents(first: 35, where: {creator: {name: "${username}"}}) {
+            contents(first: ${limit}, skip: ${skip}, where: {creator: {name: "${username}"}}) {
                 id
                 image
                 likes
@@ -208,17 +180,18 @@ export const CreatedNFTs = async(username: string) => {
                 category
               }
         }`;
-    const result:any = await hygraph.request(QUERY);
+    const result: { contents: Array<Post> } = await hygraph.request(QUERY);
     return result.contents;
 }
 
 //ListedNFTs
-export const ListedNFTs = async(username: string) => {
+export const ListedNFTs = async(limit: number, skip: number,  username: string) => {
     const QUERY = gql`
         {
             contents(
-                first: 35
-                where: {creator: {name: "${username}"}}
+                first: ${limit},
+                skip: ${skip},
+                where: {creator: {name: "${username}"}},
                 orderBy: publishedAt_DESC
               ) {
                 id
@@ -230,6 +203,6 @@ export const ListedNFTs = async(username: string) => {
                 category
             }
         }`;
-    const result:any = await hygraph.request(QUERY);
+    const result: { contents: Array<Post> } = await hygraph.request(QUERY);
     return result.contents;
 }

@@ -1,34 +1,14 @@
-import { FC, useState } from 'react'
+import { useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { useRouter, NextRouter } from 'next/router'
-
-interface User {
-    id: string;
-    cover?: string;
-    dp: string;
-    bio?: string;
-    name: string;
-    verified: boolean;
-  }
-  
-  interface Posts {
-    id: string;
-    image: string;
-    title: string;
-    category: string;
-    slug: string;
-    price: number;
-    likes: number;
-    creator: User
-  }
+import { Post } from '@/interfaces'
+import { AllNFTs, CategorisedNFTs } from '@/services'
+import LoadingPost from '../loaders/Post'
 
 interface ExploreFeeds {
-    active: string | string[] | null;
-    all: Array<Posts>;
-    art: Array<Posts>;
-    photos: Array<Posts>;
-    books: Array<Posts>;
+    active: string | null;
+    nfts: Array<Post>;
 }
 
 interface Limit {
@@ -38,24 +18,38 @@ interface Limit {
     books: number;
 }
 
-const ExploreGrid: FC<ExploreFeeds> = ({ active, all, art, photos, books }) => {
-    const [ activetab, setActivetab ] = useState<string | string[] | null>(active)
+const ExploreGrid = ({ active, nfts }: ExploreFeeds) => {
+    const [ activetab, setActivetab ] = useState<string | null>(active)
     const [ limit, setLimit ] = useState<Limit>({ all: 8, art: 8, photography: 8, books: 8})
+    const [ contents, setContents ] = useState<Post[]>(nfts)
+    const [ loading, setLoading ] = useState<boolean>(false)
     const router: NextRouter = useRouter()
 
-    const handleTab = (category: string | null) => {
+    const handleTab = async(category: string | null) => {
         if (category == null){
             router.push("/explore", undefined, { shallow: true });
+            const getposts = await AllNFTs(8, 0);
+            setContents(getposts)
+            setLimit({ all: 8, art: 8, photography: 8, books: 8})
             setActivetab(null)
         } else if (category == "art") {
             router.push("/explore?category=art", undefined, { shallow: true })
+            const getposts = await CategorisedNFTs("art", 0, 8);
+            setContents(getposts)
+            setLimit({ all: 8, art: 8, photography: 8, books: 8})
             setActivetab(category)
         } else if (category == "photography") {
             router.push("/explore?category=photography", undefined, { shallow: true })
-            setActivetab("photography")
+            const getposts = await CategorisedNFTs("photography", 0, 8);
+            setContents(getposts)
+            setLimit({ all: 8, art: 8, photography: 8, books: 8})
+            setActivetab(category)
         } else if (category == "books") {
             router.push("/explore?category=books", undefined, { shallow: true })
-            setActivetab("books")
+            const getposts = await CategorisedNFTs("book", 0, 8);
+            setContents(getposts)
+            setLimit({ all: 8, art: 8, photography: 8, books: 8})
+            setActivetab(category)
         } else {
             router.push("/")
             setActivetab(null)
@@ -63,23 +57,43 @@ const ExploreGrid: FC<ExploreFeeds> = ({ active, all, art, photos, books }) => {
         return;
     }
 
-    const handleMore = (category: string | null) => {
+    const handleMore = async(category: string | null) => {
         if (category == null){
             setLimit(prev => {
                 return { ...prev, all: prev.all+4 }
             })
+            setLoading(true);
+            const moreContents = await AllNFTs(4, limit.all);
+            setLoading(false)
+            setContents(prev => [...prev, ...moreContents])
+            return;
         } else if (category == "art") {
             setLimit(prev => {
                 return { ...prev, art: prev.art+4 }
             })
+            setLoading(true);
+            const moreContents = await CategorisedNFTs("art", limit.art, 4);
+            setLoading(false)
+            setContents(prev => [...prev, ...moreContents])
+            return;
         } else if (category == "photography") {
             setLimit(prev => {
                 return { ...prev, photography: prev.photography+4 }
             })
+            setLoading(true);
+            const moreContents = await CategorisedNFTs("photography", limit.photography, 4);
+            setLoading(false)
+            setContents(prev => [...prev, ...moreContents])
+            return;
         } else if (category == "books") {
             setLimit(prev => {
                 return { ...prev, books: prev.books+4 }
             })
+            setLoading(true);
+            const moreContents = await CategorisedNFTs("book", limit.books, 4);
+            setLoading(false)
+            setContents(prev => [...prev, ...moreContents])
+            return;
         }
         return;
     }
@@ -93,43 +107,43 @@ const ExploreGrid: FC<ExploreFeeds> = ({ active, all, art, photos, books }) => {
                 </ol>
                 <h4 className="mt-4 mb-0">Explore exclusive digital assets</h4>
                 <ul className="nav nav-box">
-                    {all.length > 0 && <li className="nav-item me-2">
+                    <li className="nav-item me-2">
                         <Link className={activetab == null ? "nav-link active py-1" :  "nav-link py-1"} href="/" 
                             onClick={(e) => {
                                 e.preventDefault(); 
                                 handleTab(null)
                             } 
                         }>All</Link>
-                    </li>}
-                    {art.length > 0 && <li className="nav-item me-2">
+                    </li>
+                    <li className="nav-item me-2">
                         <Link className={activetab == 'art' ? "nav-link active py-1" :  "nav-link py-1"} href="/?category=art" 
                             onClick={(e) => {
                                 e.preventDefault(); 
                                 handleTab("art")
                             } 
                         }>Art</Link>
-                    </li>}
-                    {photos.length > 0 && <li className="nav-item me-2"><Link className={activetab == 'photography' ? "nav-link active py-1" :  "nav-link py-1"} href="/?category=photography"
+                    </li>
+                    <li className="nav-item me-2"><Link className={activetab == 'photography' ? "nav-link active py-1" :  "nav-link py-1"} href="/?category=photography"
                             onClick={(e) => {
                                 e.preventDefault(); 
                                 handleTab("photography")
                             } 
                         }>Photography</Link>
-                    </li>}
-                    {books.length > 0 && <li className="nav-item"><Link className={activetab == 'books' ? "nav-link active py-1" :  "nav-link py-1"} href="/?category=books"
+                    </li>
+                    <li className="nav-item"><Link className={activetab == 'books' ? "nav-link active py-1" :  "nav-link py-1"} href="/?category=books"
                             onClick={(e) => {
                                 e.preventDefault();
                                 handleTab("books")
                             } 
                         }>Books</Link>
-                    </li>}
+                    </li>
                 </ul>
                 <div className="row gx-4 gy-4 mt-1">
-                    {activetab == null && all.length > 0 && all.slice(0, limit.all).map((nft, index) => <div className="col-sm-12 col-md-6 col-lg-4 col-xl-3 col-xxl-3" key={nft.id}>
+                    {activetab == null && contents.length > 0 && contents.slice(0, limit.all).map((nft, index) => <div className="col-sm-12 col-md-6 col-lg-4 col-xl-3 col-xxl-3" key={nft.id}>
                         <div className="card bg-dark border-dark nft-card">
                             <div className="px-3 pt-3">
                                 <Link href={`/item/${nft.id}`}>
-                                    <Image src={nft.image} alt='nft_image' width={500} height={400} />
+                                    <Image src={nft.image} alt='nft_image' width={500} height={400} className='bg-dark' />
                                     {/* <img src={nft.image} alt='nft_image' /> */}
                                 </Link>
                             </div>
@@ -139,14 +153,14 @@ const ExploreGrid: FC<ExploreFeeds> = ({ active, all, art, photos, books }) => {
                                 </h6>
                                 <div className="d-flex align-items-center">
                                     <div className="me-2 position-relative">
-                                        <Image width={30} height={30} src={nft.creator.dp} style={{borderRadius: 10, objectFit: 'cover'}} alt='profile_picture' />
-                                        {nft.creator.verified && <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" viewBox="0 0 16 16" className="bi bi-patch-check-fill text-primary position-absolute card-batch" style={{fontSize: 15}}>
+                                        <Image width={30} height={30} src={nft.creator?.dp as string} style={{borderRadius: 10, objectFit: 'cover'}} alt='profile_picture' className='bg-dark' />
+                                        {nft.creator?.verified && <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" viewBox="0 0 16 16" className="bi bi-patch-check-fill text-primary position-absolute card-batch" style={{fontSize: 15}}>
                                             <path d="M10.067.87a2.89 2.89 0 0 0-4.134 0l-.622.638-.89-.011a2.89 2.89 0 0 0-2.924 2.924l.01.89-.636.622a2.89 2.89 0 0 0 0 4.134l.637.622-.011.89a2.89 2.89 0 0 0 2.924 2.924l.89-.01.622.636a2.89 2.89 0 0 0 4.134 0l.622-.637.89.011a2.89 2.89 0 0 0 2.924-2.924l-.01-.89.636-.622a2.89 2.89 0 0 0 0-4.134l-.637-.622.011-.89a2.89 2.89 0 0 0-2.924-2.924l-.89.01-.622-.636zm.287 5.984-3 3a.5.5 0 0 1-.708 0l-1.5-1.5a.5.5 0 1 1 .708-.708L7 8.793l2.646-2.647a.5.5 0 0 1 .708.708z" />
                                         </svg>}
                                     </div>
                                     <div>
                                         <p className="my-0">
-                                            <Link className="username text-white-50 text-decoration-none" href={nft.creator.name}>@{nft.creator.name}</Link>
+                                            <Link className="username text-white-50 text-decoration-none" href={nft.creator?.name as string}>@{nft.creator?.name}</Link>
                                         </p>
                                     </div>
                                 </div>
@@ -171,11 +185,11 @@ const ExploreGrid: FC<ExploreFeeds> = ({ active, all, art, photos, books }) => {
                             </div>
                         </div>
                     </div>)}
-                    {activetab == 'art' && art.length > 0 && art.slice(0, limit.art).map((nft, index) => <div className="col-sm-12 col-md-6 col-lg-4 col-xl-3 col-xxl-3" key={nft.id}>
+                    {activetab == 'art' && contents.length > 0 && contents.slice(0, limit.art).map((nft, index) => <div className="col-sm-12 col-md-6 col-lg-4 col-xl-3 col-xxl-3" key={nft.id}>
                         <div className="card bg-dark border-dark nft-card">
                             <div className="px-3 pt-3">
                                 <Link href={`/item/${nft.id}`}>
-                                    <Image src={nft.image} alt='nft_image' width={500} height={400} />
+                                    <Image src={nft.image} alt='nft_image' width={500} height={400} className='bg-dark' />
                                     {/* <img src={nft.image} alt='nft_image' /> */}
                                 </Link>
                             </div>
@@ -185,14 +199,14 @@ const ExploreGrid: FC<ExploreFeeds> = ({ active, all, art, photos, books }) => {
                                 </h6>
                                 <div className="d-flex align-items-center">
                                     <div className="me-2 position-relative">
-                                        <Image width={30} height={30} src={nft.creator.dp} style={{borderRadius: 10, objectFit: 'cover'}} alt='profile_picture' />
-                                        {nft.creator.verified && <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" viewBox="0 0 16 16" className="bi bi-patch-check-fill text-primary position-absolute card-batch" style={{fontSize: 15}}>
+                                        <Image width={30} height={30} src={nft.creator?.dp as string} style={{borderRadius: 10, objectFit: 'cover'}} alt='profile_picture' className='bg-dark' />
+                                        {nft.creator?.verified && <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" viewBox="0 0 16 16" className="bi bi-patch-check-fill text-primary position-absolute card-batch" style={{fontSize: 15}}>
                                             <path d="M10.067.87a2.89 2.89 0 0 0-4.134 0l-.622.638-.89-.011a2.89 2.89 0 0 0-2.924 2.924l.01.89-.636.622a2.89 2.89 0 0 0 0 4.134l.637.622-.011.89a2.89 2.89 0 0 0 2.924 2.924l.89-.01.622.636a2.89 2.89 0 0 0 4.134 0l.622-.637.89.011a2.89 2.89 0 0 0 2.924-2.924l-.01-.89.636-.622a2.89 2.89 0 0 0 0-4.134l-.637-.622.011-.89a2.89 2.89 0 0 0-2.924-2.924l-.89.01-.622-.636zm.287 5.984-3 3a.5.5 0 0 1-.708 0l-1.5-1.5a.5.5 0 1 1 .708-.708L7 8.793l2.646-2.647a.5.5 0 0 1 .708.708z" />
                                         </svg>}
                                     </div>
                                     <div>
                                         <p className="my-0">
-                                            <Link className="username text-white-50 text-decoration-none" href={nft.creator.name}>@{nft.creator.name}</Link>
+                                            <Link className="username text-white-50 text-decoration-none" href={nft.creator?.name as string}>@{nft.creator?.name}</Link>
                                         </p>
                                     </div>
                                 </div>
@@ -217,11 +231,11 @@ const ExploreGrid: FC<ExploreFeeds> = ({ active, all, art, photos, books }) => {
                             </div>
                         </div>
                     </div>)}
-                    {activetab == 'photography' && photos.length > 0 && photos.slice(0, limit.photography).map((nft, index) => <div className="col-sm-12 col-md-6 col-lg-4 col-xl-3 col-xxl-3" key={nft.id}>
+                    {activetab == 'photography' && contents.length > 0 && contents.slice(0, limit.photography).map((nft, index) => <div className="col-sm-12 col-md-6 col-lg-4 col-xl-3 col-xxl-3" key={nft.id}>
                         <div className="card bg-dark border-dark nft-card">
                             <div className="px-3 pt-3">
                                 <Link href={`/item/${nft.id}`}>
-                                    <Image src={nft.image} alt='nft_image' width={500} height={400} />
+                                    <Image src={nft.image} alt='nft_image' width={500} height={400} className='bg-dark' />
                                     {/* <img src={nft.image} alt='nft_image' /> */}
                                 </Link>
                             </div>
@@ -231,14 +245,14 @@ const ExploreGrid: FC<ExploreFeeds> = ({ active, all, art, photos, books }) => {
                                 </h6>
                                 <div className="d-flex align-items-center">
                                     <div className="me-2 position-relative">
-                                        <Image width={30} height={30} src={nft.creator.dp} style={{borderRadius: 10, objectFit: 'cover'}} alt='profile_picture' />
-                                        {nft.creator.verified && <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" viewBox="0 0 16 16" className="bi bi-patch-check-fill text-primary position-absolute card-batch" style={{fontSize: 15}}>
+                                        <Image width={30} height={30} src={nft.creator?.dp as string} style={{borderRadius: 10, objectFit: 'cover'}} alt='profile_picture' className='bg-dark' />
+                                        {nft.creator?.verified && <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" viewBox="0 0 16 16" className="bi bi-patch-check-fill text-primary position-absolute card-batch" style={{fontSize: 15}}>
                                             <path d="M10.067.87a2.89 2.89 0 0 0-4.134 0l-.622.638-.89-.011a2.89 2.89 0 0 0-2.924 2.924l.01.89-.636.622a2.89 2.89 0 0 0 0 4.134l.637.622-.011.89a2.89 2.89 0 0 0 2.924 2.924l.89-.01.622.636a2.89 2.89 0 0 0 4.134 0l.622-.637.89.011a2.89 2.89 0 0 0 2.924-2.924l-.01-.89.636-.622a2.89 2.89 0 0 0 0-4.134l-.637-.622.011-.89a2.89 2.89 0 0 0-2.924-2.924l-.89.01-.622-.636zm.287 5.984-3 3a.5.5 0 0 1-.708 0l-1.5-1.5a.5.5 0 1 1 .708-.708L7 8.793l2.646-2.647a.5.5 0 0 1 .708.708z" />
                                         </svg>}
                                     </div>
                                     <div>
                                         <p className="my-0">
-                                            <Link className="username text-white-50 text-decoration-none" href={nft.creator.name}>@{nft.creator.name}</Link>
+                                            <Link className="username text-white-50 text-decoration-none" href={nft.creator?.name as string}>@{nft.creator?.name}</Link>
                                         </p>
                                     </div>
                                 </div>
@@ -263,11 +277,11 @@ const ExploreGrid: FC<ExploreFeeds> = ({ active, all, art, photos, books }) => {
                             </div>
                         </div>
                     </div>)}
-                    {activetab == 'books' && books.length > 0 && books.slice(0, limit.books).map((nft, index) => <div className="col-sm-12 col-md-6 col-lg-4 col-xl-3 col-xxl-3" key={nft.id}>
+                    {activetab == 'books' && contents.length > 0 && contents.slice(0, limit.books).map((nft, index) => <div className="col-sm-12 col-md-6 col-lg-4 col-xl-3 col-xxl-3" key={nft.id}>
                         <div className="card bg-dark border-dark nft-card">
                             <div className="px-3 pt-3">
                                 <Link href={`/item/${nft.id}`}>
-                                    <Image src={nft.image} alt='nft_image' width={500} height={400} />
+                                    <Image src={nft.image} alt='nft_image' width={500} height={400} className='bg-dark' />
                                 </Link>
                             </div>
                             <div className="card-body">
@@ -276,14 +290,14 @@ const ExploreGrid: FC<ExploreFeeds> = ({ active, all, art, photos, books }) => {
                                 </h6>
                                 <div className="d-flex align-items-center">
                                     <div className="me-2 position-relative">
-                                        <Image width={30} height={30} src={nft.creator.dp} style={{borderRadius: 10, objectFit: 'cover'}} alt='profile_picture' />
-                                        {nft.creator.verified && <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" viewBox="0 0 16 16" className="bi bi-patch-check-fill text-primary position-absolute card-batch" style={{fontSize: 15}}>
+                                        <Image width={30} height={30} src={nft.creator?.dp as string} style={{borderRadius: 10, objectFit: 'cover'}} alt='profile_picture' className='bg-dark' />
+                                        {nft.creator?.verified && <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" viewBox="0 0 16 16" className="bi bi-patch-check-fill text-primary position-absolute card-batch" style={{fontSize: 15}}>
                                             <path d="M10.067.87a2.89 2.89 0 0 0-4.134 0l-.622.638-.89-.011a2.89 2.89 0 0 0-2.924 2.924l.01.89-.636.622a2.89 2.89 0 0 0 0 4.134l.637.622-.011.89a2.89 2.89 0 0 0 2.924 2.924l.89-.01.622.636a2.89 2.89 0 0 0 4.134 0l.622-.637.89.011a2.89 2.89 0 0 0 2.924-2.924l-.01-.89.636-.622a2.89 2.89 0 0 0 0-4.134l-.637-.622.011-.89a2.89 2.89 0 0 0-2.924-2.924l-.89.01-.622-.636zm.287 5.984-3 3a.5.5 0 0 1-.708 0l-1.5-1.5a.5.5 0 1 1 .708-.708L7 8.793l2.646-2.647a.5.5 0 0 1 .708.708z" />
                                         </svg>}
                                     </div>
                                     <div>
                                         <p className="my-0">
-                                            <Link className="username text-white-50 text-decoration-none" href={nft.creator.name}>@{nft.creator.name}</Link>
+                                            <Link className="username text-white-50 text-decoration-none" href={nft.creator?.name as string}>@{nft.creator?.name}</Link>
                                         </p>
                                     </div>
                                 </div>
@@ -309,11 +323,12 @@ const ExploreGrid: FC<ExploreFeeds> = ({ active, all, art, photos, books }) => {
                         </div>
                     </div>)}
                 </div>
+                {loading && <LoadingPost count={[1, 2, 3, 4]} />}
                 <p className="mt-5 text-center">
-                    {activetab == null && all.length >= limit.all && <button className="btn btn-primary px-4" type="button" onClick={() => handleMore(null)}>Load more</button>}
-                    {activetab == "art" && art.length >= limit.art && <button className="btn btn-primary px-4" type="button" onClick={() => handleMore("art")}>Load more</button>}
-                    {activetab == "photography" && photos.length >= limit.photography && <button className="btn btn-primary px-4" type="button" onClick={() => handleMore("photography")}>Load more</button>}
-                    {activetab == "books" && books.length >= limit.books && <button className="btn btn-primary px-4" type="button" onClick={() => handleMore("books")}>Load more</button>}
+                    {activetab == null && contents.length >= limit.all && <button className="btn btn-primary px-4" type="button" onClick={() => handleMore(null)}>Load more</button>}
+                    {activetab == "art" && contents.length >= limit.art && <button className="btn btn-primary px-4" type="button" onClick={() => handleMore("art")}>Load more</button>}
+                    {activetab == "photography" && contents.length >= limit.photography && <button className="btn btn-primary px-4" type="button" onClick={() => handleMore("photography")}>Load more</button>}
+                    {activetab == "books" && contents.length >= limit.books && <button className="btn btn-primary px-4" type="button" onClick={() => handleMore("books")}>Load more</button>}
                 </p>
             </div>
         </section>
